@@ -1,0 +1,70 @@
+import os
+from snakemake.io import glob_wildcards
+
+# Input directory from config.yaml
+
+configfile: "config.yaml"
+SAM_DIR = config["sam_dir"]
+
+# Read in samples
+
+SAMPLES, = glob_wildcards(os.path.join(SAM_DIR, "{sample}.sam"))
+
+# 1. Convert .sam to .bam
+
+rule all: 
+	input: 
+		expand("results/bam/{sample}.bam", sample=SAMPLES),
+		expand("results/bam_sorted/{sample}.bam", sample=SAMPLES),
+		expand("results/bam_sorted/{sample}.bam.bai", sample=SAMPLES),
+		expand("results/stats/{sample}.txt", sample=SAMPLES)
+
+rule sam_to_bam: 
+	conda: "envs/samtools.yaml"
+	input: 
+		sam = os.path.join(SAM_DIR, "{sample}.sam")
+	output:
+		bam = "results/bam/{sample}.bam"
+	shell: 
+		"samtools view -bS {input.sam} > {output.bam}"
+
+rule sort_bam:
+	conda: "envs/samtools.yaml"
+	input: 
+		bam = "results/bam/{sample}.bam"
+	output:
+		sorted = "results/bam_sorted/{sample}.bam"
+	shell:
+		"samtools sort {input.bam} -o {output.sorted}"
+
+rule index_bam:
+	conda: "envs/samtools.yaml"
+	input: 
+		sorted = "results/bam_sorted/{sample}.bam"
+	output:
+		bai = "results/bam_sorted/{sample}.bam.bai"
+	shell: 
+		"samtools index {input.sorted}"
+
+rule idxstats:
+	conda: "envs/samtools.yaml"
+	input:
+		sorted = "results/bam_sorted/{sample}.bam"
+	output: 
+		stats = "results/stats/{sample}.txt"
+	shell:
+		"samtools idxstats {input.sorted} > {output.stats}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
