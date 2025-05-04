@@ -2,18 +2,20 @@
 
 This Snakemake workflow takes `.sam` files from a user-specified directory, converts them to `.bam`, sorts and indexes them, and finally runs `samtools idxstats` to produce mapping statistics.
 
+```bash
 project1/
-├── Snakefile # Pipeline definition
-├── config.yaml # Path to your input SAMs
+├── Snakefile               # Pipeline definition
+├── config.yaml            
 ├── envs/
-│ └── samtools.yaml # Conda spec for samtools
-├── data/ # Place your .sam files here
-├── results/ # Outputs (auto-generated)
-│ ├── bam/
-│ ├── bam_sorted/
-│ └── stats/
-├── .conda_envs/ # (auto) rule-env prefixes
-└── run.sh # Wrapper to launch the workflow
+│   └── samtools.yaml       # Conda spec for samtools
+├── data/                   # Place your .sam files here
+├── results/                # Outputs 
+│   ├── bam/
+│   ├── bam_sorted/
+│   └── stats/
+├── .conda_envs/            # (auto) rule-env prefixes
+└── run.sh 
+```
 
 ## Prerequisites
 
@@ -21,67 +23,67 @@ project1/
 - Miniconda3 installed  
 - Dev environment:
 
-  \`\`\`bash
+  ```bash
   cd ~/snakemake-projects
   conda env create -f environment.yml
   conda activate snakemake-dev
-  \`\`\`
+  ```
 
 ## Configuration
 
-Edit \`config.yaml\` to point at your input folder:
+Edit `config.yaml` to point at your input folder:
 
-\`\`\`yaml
-sam_dir: "/home/loki/snakemake-projects/project1/data"
-\`\`\`
+```yaml
+sam_dir: "/home/user/snakemake-projects/project1/data"
+```
 
 ## Usage
 
-1. **Copy your SAMs** into \`project1/data/\`:
+1. **Copy your SAMs** into `project1/data/`:
 
-   \`\`\`bash
+   ```bash
    cp /mnt/c/Users/Lenovo/Desktop/*.sam project1/data/
-   \`\`\`
+   ```
 
 2. **Run the pipeline**:
 
-   \`\`\`bash
+   ```bash
    cd project1
    rm -rf .snakemake      # clean previous runs
    ./run.sh
-   \`\`\`
+   ```
 
    This will:
-   - Build (via Conda) a project-local environment for \`samtools\`  
-   - Convert, sort, index, and generate stats for all \`.sam\` files  
-   - Output into \`results/bam/\`, \`results/bam_sorted/\`, and \`results/stats/\`
+   - Build (via Conda) a project-local environment for `samtools`  
+   - Convert, sort, index, and generate stats for all `.sam` files  
+   - Output into `results/bam/`, `results/bam_sorted/`, and `results/stats/`
 
 3. **Inspect outputs**:
 
-   \`\`\`bash
+   ```bash
    ls results/bam
    ls results/bam_sorted
    ls results/stats
-   \`\`\`
+   ```
 
 4. **Target a single sample**:
 
-   \`\`\`bash
+   ```bash
    ./run.sh results/stats/ERR024604_tiny.txt
-   \`\`\`
+   ```
 
 ## Reproducibility
 
-- Tool versions pinned in \`envs/samtools.yaml\`  
-- Environments built locally under \`.conda_envs/\` via Conda  
+- Tool versions pinned in `envs/samtools.yaml`  
+- Environments built locally under `.conda_envs/` via Conda  
 - Single-script invocation ensures consistent behavior
 
 ## Cleaning Up
 
 To remove all generated files:
 
-\`\`\`bash
+```bash
 rm -rf .snakemake .conda_envs results
-\`\`\`
+```
 
 ---
