@@ -2,18 +2,25 @@
 
 This Snakemake workflow takes `.sam` files from a user-specified directory, converts them to `.bam`, sorts and indexes them, and finally runs `samtools idxstats` to produce mapping statistics.
 
-project1/
-├── Snakefile # Pipeline definition
-├── config.yaml # Path to your input SAMs
-├── envs/
-│ └── samtools.yaml # Conda spec for samtools
-├── data/ # Place your .sam files here
-├── results/ # Outputs (auto-generated)
-│ ├── bam/
-│ ├── bam_sorted/
-│ └── stats/
-├── .conda_envs/ # (auto) rule-env prefixes
-└── run.sh # Wrapper to launch the workflow
+``` bash
+project2/
+├── config
+│   ├── config.yaml
+│   └── samples.tsv
+├── envs
+│   └── env.yaml
+├── logs
+├── results
+├── rules
+│   ├── bowtie.smk
+│   └── samtools.smk
+├── data
+│   ├── reads    ← (user-provided FASTQ files)
+│   └── reference.fa    ← (user-provided reference)
+├── run.sh
+└── Snakefile
+
+```
 
 ## Prerequisites
 
