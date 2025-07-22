@@ -1,0 +1,15 @@
+import pandas as pd
+configfile: "workflow/config/config.yaml"
+
+# Read the samples table
+samples_df = pd.read_csv(config["samples"], sep="\t", index_col="sample")
+SAMPLES = list(samples_df.index)
+
+# Include rule modules
+include: "rules/bowtie.smk"
+include: "rules/samtools.smk"
+
+# Default target
+rule all:
+    input:
+        "results/idxstats_summary.tsv"

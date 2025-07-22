@@ -1,0 +1,15 @@
+# Path to reference FASTA
+ref: data/reference/reference.fa
+
+# Path to the samples TSV (in the project root)
+samples: samples.tsv
+
+# Threads per tool
+threads:
+  bowtie: 4
+  samtools: 4
+
+# Bowtie insert size settings
+bowtie:
+  minins: 200
+  maxins: 1000
