@@ -1,0 +1,6 @@
+sample	fq1	fq2
+sample1	data/reads/sample1_1.fastq.gz	data/reads/sample1_2.fastq.gz
+sample2	data/reads/sample2_1.fastq.gz	data/reads/sample2_2.fastq.gz
+sample3	data/reads/sample3_1.fastq.gz	data/reads/sample3_2.fastq.gz
+sample4	data/reads/sample4_1.fastq.gz	data/reads/sample4_2.fastq.gz
+sample5	data/reads/sample5_1.fastq.gz	data/reads/sample5_2.fastq.gz

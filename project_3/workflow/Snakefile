@@ -1,0 +1,23 @@
+# workflow/Snakefile
+
+# Prevent sample from matching subdirectories
+wildcard_constraints:
+    sample = "[^/]+"
+
+import pandas as pd
+
+# Load config and sample table
+configfile: "config/config.yaml"
+samples = pd.read_csv(config["samples"], index_col="sample", sep="\t")
+SAMPLES = list(samples.index)
+
+rule all:
+    input:
+        # Final summary and report only
+        "results/idxstats_summary.tsv",
+        "results/qc/multiqc_report.html"
+
+# Include rule definitions
+include: "rules/bowtie.smk"
+include: "rules/samtools.smk"
+include: "rules/qc.smk"
