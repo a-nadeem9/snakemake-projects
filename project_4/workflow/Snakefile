@@ -1,0 +1,52 @@
+configfile: "config/config.yaml"
+
+import pandas as pd
+
+# Load sample list
+samples_df = pd.read_csv(config["samples_tsv"], sep=r"\s+", header=0)
+SAMPLES = samples_df["sample"].tolist()
+
+# Include rule files
+include: "rules/qc.smk"
+include: "rules/assembly.smk"
+include: "rules/msa.smk"
+include: "rules/variability.smk"
+include: "rules/phylogeny.smk"
+
+# Final output rule
+rule all:
+    input:
+        # 1. Trimmed FASTQs
+        expand(
+            "{qc_dir}/{sample}_{end}.trimmed.fastq.gz",
+            qc_dir=config["results"]["qc_trimmed"],
+            sample=SAMPLES,
+            end=[1, 2]
+        ),
+
+        # 2. Scaffold FASTAs
+        expand(
+            "{assembly_dir}/{sample}/scaffolds.fasta",
+            assembly_dir=config["results"]["assembly_dir"],
+            sample=SAMPLES
+        ),
+
+        # 3. Longest scaffolds per sample
+        expand(
+            "{assembly_dir}/{sample}/merged/merged.fasta",
+            assembly_dir=config["results"]["assembly_dir"],
+            sample=SAMPLES
+        ),
+
+        # 4. MSA inputs and outputs
+        f"{config['results']['msa_dir']}/scaffolds_all.fasta",
+        f"{config['results']['msa_dir']}/aligned_scaffolds.fasta",
+
+        # 5. Variability outputs
+        f"{config['results']['variability_dir']}/variability.txt",
+        f"{config['results']['variability_dir']}/variability_plot.png",
+        f"{config['results']['variability_dir']}/variability_windowed.txt",
+
+        # 6. Phylogeny outputs
+        f"{config['results']['msa_dir']}/tree.nwk",
+        f"{config['results']['plots_dir']}/tree.svg", 

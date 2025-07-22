@@ -1,0 +1,9 @@
+# workflow/envs/mafft.yaml
+name: mafft
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - mafft=7.490      # specify a recent MAFFT version
+  - python=3.8       # Python is needed for the Snakemake wrapper

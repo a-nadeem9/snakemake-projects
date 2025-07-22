@@ -1,0 +1,39 @@
+# config/config.yaml
+
+# Paths to inputs
+input_dir: "data/reads"
+adapter_path: "resources/adapters/TruSeq3-PE.fa"
+samples_tsv: "config/samples.tsv"    # ← This line must be present
+reference: "data/reference/ref.fasta"
+
+results:
+  qc_trimmed:   "results/qc/trimmed"
+  assembly_dir: "results/assembly"
+  msa_dir:      "results/msa"
+  variability_dir: "results/variability"
+  plots_dir: "results/plots"
+logs:
+  fastp:     "logs/fastp"
+  spades:    "logs/spades"
+  ragtag:    "logs/ragtag"
+  mafft:     "logs/mafft"
+  variability: "logs/variability"
+  iqtree:    "logs/iqtree"
+parameters:
+  fastp:
+    qualified_quality_phred:    15
+    unqualified_percent_limit:  40
+    n_base_limit:               5
+    length_required:            50
+    detect_adapter_for_pe:      true
+
+  spades:
+    threads: 8
+    memory:  16   # in GB
+
+  ragtag:
+    threads: 8
+
+  mafft:
+    threads: 4
+

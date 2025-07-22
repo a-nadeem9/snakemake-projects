@@ -1,0 +1,7 @@
+# workflow/envs/fastp.yaml
+
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - fastp

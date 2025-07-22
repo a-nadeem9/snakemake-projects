@@ -1,0 +1,9 @@
+name: toytree_plot
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.10
+  - toytree
+  - toyplot
