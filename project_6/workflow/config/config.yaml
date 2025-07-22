@@ -1,0 +1,7 @@
+samplesheet: "samples.tsv"
+genome_fasta: "reference/genome.fa"
+annotation_gtf: "reference/annotation.gtf"
+star_index: "reference/STAR_index"
+read_length: 101
+use_reference: false  # set to false to run the left (de novo) branch
+

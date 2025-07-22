@@ -1,0 +1,54 @@
+import pandas as pd
+import pathlib
+
+DEFAULT_THREADS = 8
+
+configfile: "workflow/config/config.yaml"
+
+# ---------------------------------------------------------------------------
+#  Parse the sample sheet
+#  Expecting tab-separated columns: sample, r1, r2 (with relative paths)
+# ---------------------------------------------------------------------------
+
+SHEET = pd.read_csv(config["samplesheet"], sep="\t").set_index("sample")
+SAMPLES = SHEET.index.tolist()
+
+# Optional: validate file existence early
+for col in ["r1", "r2"]:
+    assert all(pathlib.Path(f).exists() for f in SHEET[col]), f"Missing file(s) in column: {col}"
+
+use_reference = config.get("use_reference", True)  # true: right branch, false: left branch
+
+# Helper functions used by input sections of rules
+def fq1(wc):
+    return SHEET.loc[wc.sample, "r1"]
+
+def fq2(wc):
+    return SHEET.loc[wc.sample, "r2"]
+
+# ---------------------------------------------------------------------------
+#  Include modular rule files
+# ---------------------------------------------------------------------------
+include: "rules/preprocess_qc.smk"
+if use_reference:
+    include: "rules/star_index.smk"
+    include: "rules/star_align.smk"
+    include: "rules/featurecounts.smk"
+else:
+    include: "rules/merge_samples.smk"
+    include: "rules/trinity.smk"
+    include: "rules/kallisto.smk"
+    include: "rules/rsem.smk"
+include: "rules/multiqc.smk"
+
+# ---------------------------------------------------------------------------
+#  Final targets
+# ---------------------------------------------------------------------------
+rule all:
+    input:
+        "qc/multiqc/multiqc_report.html",
+        # reference‐based counts
+        expand("counts/{sample}.counts.txt", sample=SAMPLES) if use_reference else [],
+        # de novo quantifications
+        expand("rsem/{sample}.rsem.txt",        sample=SAMPLES) if not use_reference else [],
+        expand("kallisto/{sample}.kallisto.txt", sample=SAMPLES) if not use_reference else []

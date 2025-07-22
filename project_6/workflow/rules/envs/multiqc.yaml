@@ -1,0 +1,6 @@
+name: multiqc
+channels: [bioconda, conda-forge]
+dependencies:
+  - python=3.6
+  - multiqc=1.6
+  - markdown=3.2.*

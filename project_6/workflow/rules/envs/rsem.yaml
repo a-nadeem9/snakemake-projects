@@ -1,0 +1,9 @@
+name: rsem
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - rsem
+  - bowtie2
+  - samtools=1.9
+  - trinity 
