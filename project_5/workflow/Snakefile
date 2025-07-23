@@ -1,0 +1,75 @@
+# ----------------- config & sample sheet -----------------
+configfile: "config/config.yaml"
+
+import os, pandas as pd
+
+samples_df = pd.read_csv(config["samples_tsv"], sep=r"\s+", header=0)
+SAMPLES    = samples_df["sample"].tolist()
+
+# gate for the new reference-selection -> patch -> consensus block
+CAND_FASTA = config.get("candidates_fasta", "")
+PIPE_ON = (
+    str(config.get("enable_reference_pipeline", "true")).lower() in {"true", "1", "yes"}
+    and CAND_FASTA != ""
+)
+
+# ----------------- hard-coded folder layout --------------
+QC_TRIM_DIR     = "results/qc/trimmed"
+QC_DECONT_DIR   = "results/qc/decont"
+ASSEMBLY_DIR    = "results/assembly"
+MSA_DIR         = "results/msa"
+VAR_DIR         = "results/variability"
+PLOTS_DIR       = "results/plots"
+MULTIQC_DIR     = "results/multiqc"
+KRAKEN_DIR      = "results/kraken"
+REFSEL_DIR      = "results/reference_selection"
+PATCH_DIR       = "results/patch"
+CONS_DIR        = "results/consensus"
+
+# export variables so included rule files can see them
+globals().update(locals())
+
+# ----------------- include rule files --------------------
+include: "rules/qc.smk"
+include: "rules/decontam.smk"
+include: "rules/assembly.smk"
+include: "rules/polish.smk"
+include: "rules/msa.smk"
+include: "rules/variability.smk"
+include: "rules/phylogeny.smk"
+include: "rules/multiqc.smk"
+include: "rules/kraken.smk"
+include: "rules/candidates.smk"
+include: "rules/reference_pipeline.smk"
+
+# ----------------- final target --------------------------
+KRAKEN_DB = config["kraken2_db"]        # already used in kraken.smk
+
+rule all:
+    input:
+        # finished read sets ------------------------------------------
+        expand(
+            "{dir}/{sample}_1.{suffix}.fastq.gz",
+            dir    = QC_DECONT_DIR if config["contaminants_fasta"] else QC_TRIM_DIR,
+            suffix = "clean"       if config["contaminants_fasta"] else "trimmed",
+            sample = SAMPLES
+        ),
+
+        # reference-pipeline outputs (only if PIPE_ON) -----------------
+        expand(f"{REFSEL_DIR}/{{sample}}_best_ref.txt", sample=SAMPLES)     if PIPE_ON else [],
+        expand(f"{PATCH_DIR}/{{sample}}/patched.fasta",  sample=SAMPLES)    if PIPE_ON else [],
+        expand(f"{CONS_DIR}/{{sample}}/consensus.fasta", sample=SAMPLES)    if PIPE_ON else [],
+        expand(f"{CONS_DIR}/{{sample}}/{{sample}}.vcf",  sample=SAMPLES)    if PIPE_ON else [],
+
+        # polished assemblies ------------------------------
+        expand(f"{ASSEMBLY_DIR}/{{sample}}/final.fasta", sample=SAMPLES),
+
+        # variability / phylogeny / reports ----------------------------
+        f"{VAR_DIR}/variability.txt",
+        f"{VAR_DIR}/variability_windowed.txt",
+        f"{VAR_DIR}/variability_plot.png",
+        f"{MSA_DIR}/tree.nwk",
+        f"{PLOTS_DIR}/tree.svg",
+        f"{MULTIQC_DIR}/fastp_report.html",
+        *([f"{KRAKEN_DIR}/multiqc/kraken_report.html"] if KRAKEN_DB else [])
+
