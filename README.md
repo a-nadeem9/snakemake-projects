@@ -1,4 +1,4 @@
-# 🧬 Snakemake Projects: Adenovirus Analysis Pipelines
+# 🧬 Snakemake Projects
 
 A collection of modular, reproducible Snakemake workflows for viral genomics, transcriptomics, phylogenomics, and metagenome analysis.
 
